@@ -3,11 +3,11 @@ package util
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
-	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -47,20 +47,33 @@ func GenerateToken() string {
 }
 
 func GetClientIp() (string, error) {
-	addr, err := net.InterfaceAddrs()
+	resp, err := http.Get("http://myexternalip.com/raw")
 	if err != nil {
 		return "", err
 	}
-	for _, address := range addr {
-		// 检查ip地址判断是否回环地址
-		if ipNet, ok := address.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-			if ipNet.IP.To4() != nil {
-				return ipNet.IP.String(), nil
-			}
-		}
+	defer func() { _ = resp.Body.Close() }()
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
 	}
-	return "", errors.New("can not find the client ip address")
+	return string(bytes), nil
 }
+
+//func GetClientIp() (string, error) {
+//	addr, err := net.InterfaceAddrs()
+//	if err != nil {
+//		return "", err
+//	}
+//	for _, address := range addr {
+//		// 检查ip地址判断是否回环地址
+//		if ipNet, ok := address.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
+//			if ipNet.IP.To4() != nil {
+//				return ipNet.IP.String(), nil
+//			}
+//		}
+//	}
+//	return "", errors.New("can not find the client ip address")
+//}
 
 /**
  * 查询文件（文件件）是否存在
