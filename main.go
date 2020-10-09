@@ -253,12 +253,13 @@ func move(ctx *gin.Context) {
 	}
 	files := req["files"]
 	newPath := req["path"][0]
-	if files == nil || len(files) == 0 || newPath == "" {
+	if files == nil || len(files) == 0 {
 		ctx.JSON(400, common.NewFailResult(400, "request file list is null"))
 		return
 	}
 	for _, filePath := range files {
-		if err := os.Rename(getAbsolutePath(filePath), getAbsolutePath(newPath)); err != nil {
+		base := path.Base(filePath)
+		if err := os.Rename(getAbsolutePath(filePath), path.Join(getAbsolutePath(newPath), "/"+base)); err != nil {
 			ctx.JSON(500, common.NewFailResult(500, err.Error()))
 			return
 		}

@@ -69,7 +69,7 @@ $(document).ready(function () {
     });
     //删除文件
     $("#btn-delete").click(function () {
-        path = getParam()
+        path = getParam();
         var checkID = [];//定义一个空数组
         $("input[name='file-id']:checked").each(function (i) {//把所有被选中的复选框的值存入数组
             checkID[i] = path + "/" + $(this).val();
@@ -97,13 +97,44 @@ $(document).ready(function () {
         });
     });
     //移动文件
-    $("#btn-move").click(function () {
-        var checkID = [];//定义一个空数组
+    $("#btn-file-move").click(function () {
+        let basePath = getParam();
+        let checkID = [];//定义一个空数组
         $("input[name='file-id']:checked").each(function (i) {//把所有被选中的复选框的值存入数组
-            checkID[i] = $(this).val();
+            checkID[i] = basePath + "/" + $(this).val();
         });
-        console.log(checkID);
+        let movePath = $("#input-file-move-path").val();
+        $.ajax({
+            url: domain + "move",
+            type: "POST",
+            async: false, // 使用同步方式
+            data: JSON.stringify({
+                files: checkID,
+                path: [movePath],
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.code === 0) {
+                    toastr.success(result.response);
+                    fileList(basePath);
+                    $('#model-file-move').modal('hide');
+                } else {
+                    toastr.error(result.message);
+                    $('#model-file-move').modal('hide');
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error(error);
+                $('#model-file-move').modal('hide');
+            }
+        });
     });
+    //选择要移动的位置
+    $("#btn-move-path-select").click(function () {
+        selectPath("input-file-move-path", "move-dropdown-menu")
+    });
+
     //选择上传文件夹
     $("#btn-path-select").click(function () {
         path = $('#input-file-path').prop("value");
@@ -188,6 +219,33 @@ function inited() {
         }
     });
     return true
+}
+
+function selectPath(inputId, dropMenuId) {
+    path = $('#' + inputId).prop("value");
+    $.ajax({
+        url: domain + "list?dir=" + path,
+        success: function (result) {
+            $("#" + dropMenuId).html("");
+            $(result.response).each(function (i, data) {
+                if (path == "/") {
+                    path = ""
+                }
+                allPath = path + "/" + this.name;
+                if (this.isDir) {
+                    pathItem = '<a class="dropdown-item" href="#" name="dropdown-item" value="' + allPath + '"><i class="fa fa-folder-open" aria-hidden="true"></i> ' + this.name + '</a>'
+                    $("#" + dropMenuId).append(pathItem);
+                }
+            });
+            //给所有的文件夹绑定点击事件
+            $("a[name='dropdown-item']").click(function () {
+                $('#' + inputId).prop("value", $(this).attr("value"));
+            });
+        },
+        error: function (xhr, status, error) {
+            toastr.error(error);
+        }
+    });
 }
 
 // initialize with defaults
