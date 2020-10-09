@@ -275,18 +275,20 @@ $("#input-id").fileinput({
     'previewFileType': 'any',
     'theme': 'fa',
     'uploadUrl': domain + 'upload',
-    'mergeAjaxCallbacks': true, //保证ajaxSettings生效
+    // 'mergeAjaxCallbacks': true, //保证ajaxSettings生效
     'ajaxSettings': {
         beforeSend: function (xhr, data) {
             //在请求之前带上token
             xhr.setRequestHeader('token', localStorage.token);
-            data.data.dir = $('#input-file-path').val();
-            console.log(data)
+            // data.data.dir = $('#input-file-path').val();
+            // console.log(data)
         }
     },
-    'uploadExtraData': {
-        'token': localStorage.token, // for access control / security
-        // 'dir': $('#input-file-path').val(),
+    'uploadExtraData': function () {
+        return {
+            'token': localStorage.token, // for access control / security
+            'dir': $('#input-file-path').val(),
+        }
     }
 }).on('fileuploaded', function (event, preview, index, fileId) {
     res = preview.response;
@@ -331,9 +333,11 @@ $("#input-file-upload").fileinput({
             // console.log(data)
         }
     },
-    'uploadExtraData': {
-        'token': localStorage.token, // for access control / security
-        'dir': $('#current-path').val(),
+    'uploadExtraData': function () {
+        return {
+            'token': localStorage.token, // for access control / security
+            'dir': $('#current-path').val(),
+        }
     }
 }).on('fileuploaded', function (event, preview, index, fileId) {
     res = preview.response;
