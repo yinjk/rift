@@ -20,3 +20,6 @@ Rift分为前端和后端，前端是一个谷歌浏览器扩展插件，使用�
 ![](.README_images/41f1b11a.png)
 ![](.README_images/3c60ed22.png)
 ![](.README_images/811d5076.png)
+
+## LICENSE
+Rift is Open Source software released under the [MIT License](LICENSE)
