@@ -20,7 +20,6 @@ import (
 	"rift/util"
 )
 
-
 type Response struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
@@ -178,6 +177,7 @@ func list(ctx *gin.Context) {
 	}).Unmarshal(&res)
 	ctx.JSON(200, common.NewSuccessResult(res))
 }
+
 //
 //func download(ctx *gin.Context) {
 //	response, err := nethttp.Get("https://raw.githubusercontent.com/gin-gonic/logo/master/color.png")
@@ -293,7 +293,7 @@ func saveFileDirect(fileHeader *multipart.FileHeader, dir string) (source string
 	if _, err = io.Copy(f, file); err != nil {
 		return "", err
 	}
-	return config.Domain + "static/" + fileRelativePath, nil
+	return path.Join(config.Domain, "/static", "/"+fileRelativePath), nil
 }
 
 func saveFile(fileHeader *multipart.FileHeader) (source string, err error) {
