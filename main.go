@@ -112,7 +112,7 @@ func authorization(ctx *gin.Context) {
 	if !config.StaticAuth && strings.HasPrefix(ctx.Request.RequestURI, "/static") {
 		return
 	}
-	if !config.StaticAuth && strings.HasPrefix(ctx.Request.RequestURI, "/upload") {
+	if !config.StaticAuth && strings.HasPrefix(ctx.Request.RequestURI, "/upload") && token == "" {
 		token = ctx.PostForm("token")
 	}
 	if config.Token != "" && config.Token != token {
