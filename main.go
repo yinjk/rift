@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
+	nethttp "net/http"
 	"os"
 	"path"
 	"strconv"
@@ -94,6 +96,7 @@ func main() {
 	})
 	engine.Use(authorization)
 	engine.POST("/upload", upload)
+	engine.POST("/upload/online", uploadOnline)
 	engine.GET("/list", list)
 	engine.POST("/mkdir", mkdir)
 	engine.DELETE("/files", deleteFiles)
@@ -117,6 +120,30 @@ func authorization(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+}
+
+func uploadOnline(ctx *gin.Context) {
+	url := ctx.PostForm("url")
+	dir := ctx.PostForm("dir")
+	fileName := ctx.PostForm("fileName")
+	if fileName == "" {
+		fileName = path.Base(url)
+	}
+	// Get the data
+	resp, err := nethttp.Get(url)
+	if err != nil {
+		ctx.JSON(500, common.NewFailResult(500, err.Error()))
+		return
+	}
+	go func() {
+		defer func() { _ = resp.Body.Close() }()
+		_, err := doSaveFileDirect(resp.Body, fileName, dir)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+	}()
+	ctx.JSON(200, common.NewSuccessResult("已开始下载任务", "upload success"))
 }
 
 func upload(ctx *gin.Context) {
@@ -273,7 +300,6 @@ func saveFileDirect(fileHeader *multipart.FileHeader, dir string) (source string
 		return "", err
 	}
 	fileName := fileHeader.Filename
-	path.Join()
 	fileDir := path.Join(config.RootPath, dir)
 	fileAbsolutePath := path.Join(config.RootPath, dir, fileName)
 	fileRelativePath := path.Join(dir, fileName)
@@ -292,6 +318,26 @@ func saveFileDirect(fileHeader *multipart.FileHeader, dir string) (source string
 		return "", err
 	}
 	if _, err = io.Copy(f, file); err != nil {
+		return "", err
+	}
+	return path.Join(config.Domain, "/static", "/"+fileRelativePath), nil
+}
+
+func doSaveFileDirect(src io.Reader, fileName string, dstDir string) (source string, err error) {
+	fileDir := path.Join(config.RootPath, dstDir)
+	fileAbsolutePath := path.Join(config.RootPath, dstDir, fileName)
+	fileRelativePath := path.Join(dstDir, fileName)
+	if !util.ExistsFile(fileDir) {
+		if err := os.MkdirAll(fileAbsolutePath, 0777); err != nil {
+			return "", err
+		}
+	}
+	f, err := os.OpenFile(fileAbsolutePath, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = f.Close() }()
+	if _, err = io.Copy(f, src); err != nil {
 		return "", err
 	}
 	return path.Join(config.Domain, "/static", "/"+fileRelativePath), nil

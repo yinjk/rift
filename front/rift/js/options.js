@@ -32,18 +32,20 @@ $(document).ready(function () {
     });
     //离线下载
     $("#btn-down-offline").click(function () {
-        $.post(domain + "download/offline",
+        $.post(domain + "upload/online",
             {
                 'dir': $('#current-path').val(),
-                'url': $('#input-file-url').val()
+                'url': $('#input-file-url').val(),
+                'fileName': $('#input-file-name').val()
             },
             function (data, status) {
                 if (data.code == 0) {
                     toastr.success(data.response);
                     fileList(getParam());
+                    $('#model-off-line-download').modal('hide');
                 } else {
-                    $('#model-new-floder').modal('hide');
-                    toastr.error(data.message)
+                    toastr.error(data.message);
+                    $('#model-off-line-download').modal('hide');
                 }
             }
         );
