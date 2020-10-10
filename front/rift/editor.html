@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Material Design for Bootstrap fonts and icons -->
+    <link rel="stylesheet" href="css/icons.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link href="css/toastr.min.css" rel="stylesheet"/>
+    <link href="css/my.css" rel="stylesheet"/>
+
+    <!-- Material Design for Bootstrap CSS -->
+    <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">   -->
+    <link rel="stylesheet" href="css/bootstrap-material-design.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+
+    <title>Rift</title>
+</head>
+<body>
+<!-- nav bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto list-group" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" id="list-home-list" data-toggle="list" href="#list-rift" role="tab"> Rift <span
+                            class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="list-profile-list" data-toggle="list" href="#list-upload" role="tab"> File
+                    Upload</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="list-setting-list" data-toggle="list" href="#list-setting" role="tab">
+                    Setting</a>
+            </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </div>
+</nav>
+<br>
+<!-- container -->
+<div class="container">
+    <label>
+        <textarea></textarea>
+    </label>
+</div>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/toastr.js"></script>
+<script src="js/popper.js" crossorigin="anonymous"></script>
+<script src="js/bootstrap-material-design.min.js"></script>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+    var simplemde = new SimpleMDE({
+        autosave: {
+            enabled: true,
+            uniqueId: "MyUniqueID",
+            delay: 1000,
+        },
+        spellChecker: false,
+    });
+</script>
+
+</body>
+</html>

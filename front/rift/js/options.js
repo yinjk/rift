@@ -30,6 +30,31 @@ $(document).ready(function () {
             }
         );
     });
+    //新建文件
+    $("#btn-new-file").click(function () {
+        let parentPath = getParam();
+        let fileName = $("#input-new-file-name").val();
+        if (fileName === "" || fileName === undefined) {
+            toastr.error("文件名不能为空！");
+            return
+        }
+        $.post(domain + "file/new",
+            {
+                dir: parentPath,
+                fileName: fileName
+            },
+            function (data, status) {
+                if (data.code === 0) {
+                    toastr.success(data.response);
+                    $('#model-new-file').modal('hide');
+                    fileList(getParam());
+                } else {
+                    $('#model-new-file').modal('hide');
+                    toastr.error(data.message);
+                }
+            }
+        );
+    });
     //离线下载
     $("#btn-down-offline").click(function () {
         $.post(domain + "upload/online",

@@ -99,6 +99,7 @@ func main() {
 	engine.POST("/upload/online", uploadOnline)
 	engine.GET("/list", list)
 	engine.POST("/mkdir", mkdir)
+	engine.POST("/file/new", newFile)
 	engine.DELETE("/files", deleteFiles)
 	engine.POST("/move", move)
 	//engine.GET("/download", download)
@@ -245,6 +246,17 @@ func mkdir(ctx *gin.Context) {
 	dir := ctx.PostForm("dir")
 	absolutePath := getAbsolutePath(dir)
 	if err := os.MkdirAll(absolutePath, 0777); err != nil {
+		ctx.JSON(500, common.NewFailResult(500, err.Error()))
+		return
+	}
+	ctx.JSON(200, common.NewSuccessResult("success"))
+	return
+}
+
+func newFile(ctx *gin.Context) {
+	dir := ctx.PostForm("dir")
+	fileName := ctx.PostForm("fileName")
+	if _, err := os.Create(path.Join(getAbsolutePath(dir), "/"+fileName)); err != nil {
 		ctx.JSON(500, common.NewFailResult(500, err.Error()))
 		return
 	}

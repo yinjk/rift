@@ -48,7 +48,8 @@
     <div class="tab-pane fade show active" id="list-rift" role="tabpanel" aria-labelledby="list-profile-list">
       <h1 class="text-success">Rift Cloud</h1>
       <button type="button" class="btn btn-outline-info" id="btn-upload" data-toggle="modal" data-target="#model-upload-file">上传</button>
-      <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#model-new-floder">新建文件夹</button>
+      <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#model-new-file">新建</button>
+      <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#model-new-folder">新建文件夹</button>
       <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#model-off-line-download">离线下载</button>
       <div class="btn-group" role="group" aria-label="">
         <button type="button" class="btn btn-outline-success" id="btn-download">下载</button>
@@ -127,15 +128,30 @@
 
 
 <!-- Modal new floder -->
-<div class="modal fade" id="model-new-floder" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="model-new-folder" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-body input-group">
-        <input type="text" id="input-floader-name" class="form-control" placeholder="input floader name" aria-label="Recipient's username" aria-describedby="basic-addon2">
+        <input type="text" id="input-floader-name" class="form-control" placeholder="input folder name" aria-label="Recipient's folder name" aria-describedby="basic-addon2">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
         <button type="button" id="btn-new-floader" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal new file -->
+<div class="modal fade" id="model-new-file" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body input-group">
+        <input type="text" id="input-new-file-name" class="form-control" placeholder="input file name" aria-label="Recipient's file name" aria-describedby="basic-addon2">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" id="btn-new-file" class="btn btn-primary">保存</button>
       </div>
     </div>
   </div>
