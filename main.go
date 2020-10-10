@@ -136,9 +136,13 @@ func uploadOnline(ctx *gin.Context) {
 		ctx.JSON(500, common.NewFailResult(500, err.Error()))
 		return
 	}
+	if resp.StatusCode/100 != 2 {
+		ctx.JSON(500, common.NewFailResult(500, resp.Status))
+		return
+	}
 	go func() {
 		defer func() { _ = resp.Body.Close() }()
-		_, err := doSaveFileDirect(resp.Body, fileName, dir)
+		_, err := doSaveFileDirect(resp.Body, resp.ContentLength, fileName, dir)
 		if err != nil {
 			log.Print(err)
 			return
@@ -335,7 +339,7 @@ func saveFileDirect(fileHeader *multipart.FileHeader, dir string) (source string
 	return path.Join(config.Domain, "/static", "/"+fileRelativePath), nil
 }
 
-func doSaveFileDirect(src io.Reader, fileName string, dstDir string) (source string, err error) {
+func doSaveFileDirect(src io.Reader, total int64, fileName string, dstDir string) (source string, err error) {
 	fileDir := path.Join(config.RootPath, dstDir)
 	fileAbsolutePath := path.Join(config.RootPath, dstDir, fileName)
 	fileRelativePath := path.Join(dstDir, fileName)
@@ -349,9 +353,12 @@ func doSaveFileDirect(src io.Reader, fileName string, dstDir string) (source str
 		return "", err
 	}
 	defer func() { _ = f.Close() }()
-	if _, err = io.Copy(f, src); err != nil {
+	processor := util.NewWriteProcessor(0, total, fileName, fileDir)
+	_ = processor.Start()
+	if _, err = io.Copy(f, io.TeeReader(src, processor)); err != nil {
 		return "", err
 	}
+	_ = processor.Finish()
 	return path.Join(config.Domain, "/static", "/"+fileRelativePath), nil
 }
 
