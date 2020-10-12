@@ -354,6 +354,7 @@ function fileList(path) {
                     isDir = checkBox.attr('dir');
                 }
                 let path = getParam() + "/" + checkBox.val();
+                let name = checkBox.val();
                 let butts;
                 if (isDir === "true") {
                     butts = '<a name=\'file-rename\' href=\'#\' data-toggle=\'tooltip\' data-placement=\'top\' title=\'重命名\'><li class=\'fa fa-pencil\'></li></a>';
@@ -373,6 +374,7 @@ function fileList(path) {
                     //禁用a标签自带的跳转
                     e.preventDefault();
                     $('#input-rename-old-path').prop("value", path);
+                    $('#input-rename-new-path').prop("value", name);
                     $('#model-rename').modal('show');
                 });
             }, function () {
