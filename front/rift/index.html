@@ -77,6 +77,7 @@
             <th scope="col">文件名</th>
             <th scope="col">大小</th>
             <th scope="col">修改日期</th>
+            <th scope="col">操作</th>
           </tr>
           </thead>
           <tbody id="fileList">
@@ -152,6 +153,22 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
         <button type="button" id="btn-new-file" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal rename -->
+<div class="modal fade" id="model-rename" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body input-group">
+        <input type="text" id="input-rename-old-path" class="form-control d-none">
+        <input type="text" id="input-rename-new-path" class="form-control" placeholder="input name" aria-label="Recipient's file name" aria-describedby="basic-addon2">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" id="btn-rename" class="btn btn-primary">保存</button>
       </div>
     </div>
   </div>
@@ -292,7 +309,7 @@
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/toastr.js"></script>
-<script src="js/popper.js"  crossorigin="anonymous"></script>
+<script src="js/popper.js" type="text/javascript"></script>
 <script src="js/bootstrap-material-design.min.js" ></script>
 <script type="text/javascript" src="js/fileinput.min.js"></script>
 <script type="text/javascript" src="js/theme.js"></script>

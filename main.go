@@ -102,6 +102,9 @@ func main() {
 	engine.POST("/file/new", newFile)
 	engine.DELETE("/files", deleteFiles)
 	engine.POST("/move", move)
+	engine.POST("/rename", rename)
+	engine.GET("/text", getText)
+	engine.POST("/text", saveText)
 	//engine.GET("/download", download)
 	engine.Static("/static", config.RootPath)
 	engine.ListenAndStartUp()
@@ -210,47 +213,49 @@ func list(ctx *gin.Context) {
 	ctx.JSON(200, common.NewSuccessResult(res))
 }
 
-//
-//func download(ctx *gin.Context) {
-//	response, err := nethttp.Get("https://raw.githubusercontent.com/gin-gonic/logo/master/color.png")
-//	if err != nil || response.StatusCode != nethttp.StatusOK {
-//		ctx.Status(nethttp.StatusServiceUnavailable)
-//		return
-//	}
-//
-//	reader := response.Body
-//	contentLength := response.ContentLength
-//	contentType := response.Header.Get("Content-Type")
-//
-//	extraHeaders := map[string]string{
-//		"Content-Disposition": `attachment; filename="gopher.png"`,
-//	}
-//
-//	file, err := os.Open("/data")
-//	if err != nil {
-//		panic(err)
-//	}
-//	defer file.Close()
-//	bytes, err := ioutil.ReadAll(file)
-//	if err != nil {
-//		panic(err)
-//	}
-//	fileName := file.Name()
-//	ctx.Header("Content-Type", "application/octet-stream")
-//	ctx.Header("Content-Disposition", "attachment; filename="+fileName)
-//	_, err = ctx.Writer.Write(bytes)
-//	if err != nil {
-//		panic(err)
-//	}
-//	ctx.DataFromReader(nethttp.StatusOK, contentLength, contentType, reader, extraHeaders)
-//
-//}
-
 func mkdir(ctx *gin.Context) {
 	dir := ctx.PostForm("dir")
 	absolutePath := getAbsolutePath(dir)
 	if err := os.MkdirAll(absolutePath, 0777); err != nil {
 		ctx.JSON(500, common.NewFailResult(500, err.Error()))
+		return
+	}
+	ctx.JSON(200, common.NewSuccessResult("success"))
+	return
+}
+
+func getText(ctx *gin.Context) {
+	dir, _ := ctx.GetQuery("path")
+	if dir == "/" {
+		dir = ""
+	}
+	absolutePath := getAbsolutePath(dir)
+	fileName := path.Base(absolutePath)
+	if !isTextFile(fileName) {
+		ctx.JSON(200, common.NewFailResult(500, "can't open this file : "+fileName))
+		return
+	}
+	file, err := os.Open(absolutePath)
+	if err != nil {
+		ctx.JSON(200, common.NewFailResult(500, err.Error()))
+		return
+	}
+	defer func() { _ = file.Close() }()
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		ctx.JSON(200, common.NewFailResult(500, err.Error()))
+		return
+	}
+	ctx.JSON(200, common.NewSuccessResult(string(bytes)))
+	return
+}
+
+func saveText(ctx *gin.Context) {
+	dir := ctx.PostForm("dir")
+	text := ctx.PostForm("text")
+	absolutePath := getAbsolutePath(dir)
+	if err := ioutil.WriteFile(absolutePath, []byte(text), 0666); err != nil {
+		ctx.JSON(200, common.NewFailResult(500, err.Error()))
 		return
 	}
 	ctx.JSON(200, common.NewSuccessResult("success"))
@@ -284,6 +289,15 @@ func deleteFiles(ctx *gin.Context) {
 			ctx.JSON(500, common.NewFailResult(500, err.Error()))
 			return
 		}
+	}
+	ctx.JSON(200, common.NewSuccessResult("success", "success"))
+}
+func rename(ctx *gin.Context) {
+	oldPath := ctx.PostForm("oldPath")
+	newPath := ctx.PostForm("newPath")
+	if err := os.Rename(getAbsolutePath(oldPath), getAbsolutePath(newPath)); err != nil {
+		ctx.JSON(200, common.NewFailResult(500, err.Error()))
+		return
 	}
 	ctx.JSON(200, common.NewSuccessResult("success", "success"))
 }
@@ -404,4 +418,14 @@ func getAbsolutePath(path string) string {
 
 func getFileUrl(dir, fileName string) string {
 	return path.Join(config.Domain, "static", dir, fileName)
+}
+
+func isTextFile(name string) bool {
+	var txtFormat = []string{".md", ".txt", ".text", ".doc", ".docx"}
+	for _, v := range txtFormat {
+		if strings.HasSuffix(name, v) {
+			return true
+		}
+	}
+	return false
 }

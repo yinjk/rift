@@ -1,4 +1,4 @@
-var domain = localStorage.domain
+var domain = localStorage.domain;
 $(document).ready(function () {
     $('body').bootstrapMaterialDesign();
 
@@ -161,6 +161,29 @@ $(document).ready(function () {
     $("#btn-move-path-select").click(function () {
         selectPath("input-file-move-path", "move-dropdown-menu")
     });
+    //重命名
+    $("#btn-rename").click(function () {
+        console.log($("#input-rename-old-path").val())
+        if ($("#input-rename-new-path").val() === undefined || $("#input-rename-new-path").val() === "") {
+            toastr.error("文件名不能为空！！！");
+            return
+        }
+        $.post(domain + "rename",
+            {
+                oldPath: $("#input-rename-old-path").val(),
+                newPath: getParam() + "/" + $("#input-rename-new-path").val(),
+            },
+            function (data, status) {
+                if (data.code === 0) {
+                    $('#model-rename').modal('hide');
+                    toastr.success("保存成功");
+                    fileList(getParam());
+                } else {
+                    toastr.error(data.message)
+                }
+            }
+        );
+    });
 
     //选择上传文件夹
     $("#btn-path-select").click(function () {
@@ -180,8 +203,11 @@ $(document).ready(function () {
                     }
                 });
                 //给所有的文件夹绑定点击事件
-                $("a[name='dropdown-item']").click(function () {
+                $("a[name='dropdown-item']").click(function (e) {
+                    //禁用a标签自带的跳转
+                    e.preventDefault();
                     $('#input-file-path').prop("value", $(this).attr("value"));
+
                 });
             },
             error: function (xhr, status, error) {
@@ -215,6 +241,7 @@ $(document).ready(function () {
             fileList(getParam());
         }
     })
+
 });
 
 if (inited()) {
@@ -260,12 +287,14 @@ function selectPath(inputId, dropMenuId) {
                 }
                 allPath = path + "/" + this.name;
                 if (this.isDir) {
-                    pathItem = '<a class="dropdown-item" href="#" name="dropdown-item" value="' + allPath + '"><i class="fa fa-folder-open" aria-hidden="true"></i> ' + this.name + '</a>'
+                    pathItem = '<a class="dropdown-item" href="#" name="dropdown-item" value="' + allPath + '"><i class="fa fa-folder-open" aria-hidden="true"></i> ' + this.name + '</a>';
                     $("#" + dropMenuId).append(pathItem);
                 }
             });
             //给所有的文件夹绑定点击事件
-            $("a[name='dropdown-item']").click(function () {
+            $("a[name='dropdown-item']").click(function (e) {
+                //禁用a标签自带的跳转
+                e.preventDefault();
                 $('#' + inputId).prop("value", $(this).attr("value"));
             });
         },
@@ -297,15 +326,16 @@ function fileList(path) {
                 <th scope="row">\
                   <div class="checkbox">\
                     <label>\
-                      <input type="checkbox" name="file-id" value="' + this.name + '" url="' + this.url + '">\
+                      <input type="checkbox" name="file-id" dir="' + this.isDir + '" value="' + this.name + '" url="' + this.url + '">\
                       <span class="checkbox-decorator"><span class="check"></span><div class="ripple-container"></div></span>\
                     </label>\
                   </div>   \
                 </th>\
-                <td>' + nameCell + '</td>\
+                <td name="name">' + nameCell + '</td>\
                 <td>' + this.size + '</td>\
                 <td>' + this.time + '</td>\
-              </tr>'
+                <td name="operation" style="width: 10%"></td>\
+              </tr>';
                 // $("tbody").html(trRow)
                 $(trRow).appendTo($("#fileList"))
 
@@ -314,10 +344,40 @@ function fileList(path) {
             $("a[name='btn-dir']").click(function () {
                 fileList($(this).attr('href').substring(1));
             });
+            //重命名、编辑
             $("#fileList tr").hover(function () {
-                $(this).addClass("bg-table-row")
+                $(this).addClass("bg-table-row");
+                let checkBox = $(this).children("th").children("span").children("div").children("label").children("input[name='file-id']");
+                let isDir = checkBox.attr('dir');
+                if (isDir === undefined) {
+                    checkBox = $(this).children("th").children("div").children("label").children("input[name='file-id']");
+                    isDir = checkBox.attr('dir');
+                }
+                let path = getParam() + "/" + checkBox.val();
+                let butts;
+                if (isDir === "true") {
+                    butts = '<a name=\'file-rename\' href=\'#\' data-toggle=\'tooltip\' data-placement=\'top\' title=\'重命名\'><li class=\'fa fa-pencil\'></li></a>';
+                } else {
+                    butts = '<a name=\'file-edit\' href=\'#\' data-toggle=\'tooltip\' data-placement=\'top\' title=\'编辑\'><li class=\'fa fa-file-text\'></li></a>&nbsp;&nbsp;<a name=\'file-rename\' href=\'#\' data-toggle=\'tooltip\' data-placement=\'top\' title=\'重命名\'><li class=\'fa fa-pencil\'></li></a>';
+                }
+                $(this).children("td[name='operation']").append(butts);
+                // $('[data-toggle="tooltip"]').tooltip();
+                //编辑
+                $("a[name='file-edit']").click(function (e) {
+                    //禁用a标签自带的跳转
+                    e.preventDefault();
+                    chrome.tabs.create({url: "editor.html#" + path});
+                });
+                //重命名
+                $("a[name='file-rename']").click(function (e) {
+                    //禁用a标签自带的跳转
+                    e.preventDefault();
+                    $('#input-rename-old-path').prop("value", path);
+                    $('#model-rename').modal('show');
+                });
             }, function () {
-                $(this).removeClass("bg-table-row")
+                $(this).removeClass("bg-table-row");
+                $(this).children("td[name='operation']").html("");
             })
         },
         error: function (xhr, status, error) {
@@ -327,8 +387,8 @@ function fileList(path) {
 }
 
 function generateNav(path) {
-    $("#breadcrumb").html("")
-    $('<li class="breadcrumb-item"><a name="btn-dir" href="#">全部文件</a></li>')
+    $("#breadcrumb").html("");
+    $('<li class="breadcrumb-item"><a name="btn-dir" href="#">全部文件</a></li>');
     var pathList = [];
     pathList[0] = {name: "全部文件", path: "/"}
     prePath = ""

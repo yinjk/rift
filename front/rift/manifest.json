@@ -3,6 +3,7 @@
 	"name": "rift",
 	"version": "1.0.0",
 	"description": "云文件管理",
+	"content_security_policy": "script-src 'self' 'unsafe-eval' 'sha256-wt9YRWbBm7pGoh/3Y6NjkUCWRSoHNYei0xmnkSat674='; object-src 'self'",
 	"icons":
 	{
 		"16": "img/icon.png",
