@@ -21,5 +21,20 @@ Rift分为前端和后端，前端是一个谷歌浏览器扩展插件，使用�
 ![](.README_images/3c60ed22.png)
 ![](.README_images/811d5076.png)
 
+## Feature
+* [x] 文件上传 - 支持本地上传和在线上传
+* [x] 文件管理 - 支持列表、移动、删除、新建等操作
+* [x] 文件下载 - 支持单文件下载
+* [ ] 批量下载 - 批量文件下载器
+* [ ] 文本编辑 - 实现类似石墨文档的在线markdown文本编辑，可作为云笔记工具
+* [ ] 在线压缩/解压 - 在线对文件进行压缩和解压（支持zip、tar格式）
+* [ ] 多后台支持 - 支持多种后端，如Github仓库、Google云硬盘、OneDrive等。
+* [ ] 多云盘支持 - 可在设置页中随意切换多个后端来获取不同的云端数据
+
+
+
+
+
+
 ## LICENSE
 Rift is Open Source software released under the [MIT License](LICENSE)

@@ -14,7 +14,9 @@
     <!-- Material Design for Bootstrap CSS -->
     <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">   -->
     <link rel="stylesheet" href="css/bootstrap-material-design.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">-->
+    <!-- ⚠️生产环境请指定版本号，如 https://cdn.jsdelivr.net/npm/vditor@x.x.x/dist... -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor/dist/index.css"/>
 
     <title>Rift</title>
 </head>
@@ -45,9 +47,22 @@
 <br>
 <!-- container -->
 <div class="container">
-    <label>
-        <textarea></textarea>
-    </label>
+
+    <div>
+        <button type="button" class="btn btn-outline-dark" onclick="window.vditor.setTheme('dark', 'dark',  'native')">
+            Dark
+        </button>
+        <button type="button" class="btn btn-outline-danger"
+                onclick="window.vditor.setTheme('light', 'light', 'github')">Light
+        </button>
+    </div>
+    <div id="vditor">
+        <h1>Vditor</h1>
+        <ul>
+            <li>foo</li>
+            <li>bar</li>
+        </ul>
+    </div>
 </div>
 
 
@@ -57,16 +72,82 @@
 <script src="js/toastr.js"></script>
 <script src="js/popper.js" crossorigin="anonymous"></script>
 <script src="js/bootstrap-material-design.min.js"></script>
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/vditor/dist/index.min.js" defer></script>
 <script>
-    var simplemde = new SimpleMDE({
-        autosave: {
-            enabled: true,
-            uniqueId: "MyUniqueID",
-            delay: 1000,
-        },
-        spellChecker: false,
+    let toolbar = [
+        'emoji',
+        'check',
+        'line',
+        'insert-before',
+        'insert-after',
+        'table',
+        '|',
+        'undo',
+        'redo',
+        'edit-mode',
+        'fullscreen',
+        {
+            name: 'more',
+            toolbar: [
+                'outline',
+                'preview',
+                'code-theme',
+                'export',
+            ],
+        }
+
+    ];
+
+    $(document).ready(function () {
+        window.vditor = new Vditor('vditor', {
+            toolbar,
+            mode: 'ir',
+            height: window.innerHeight + 100,
+            outline: true,
+            debugger: true,
+            typewriterMode: true,
+            placeholder: '写你所想!',
+            preview: {
+                markdown: {
+                    toc: true,
+                    mark: true,
+                },
+            },
+            after: function () {
+                vditor.setValue('## Hello \n hhhhh')
+            },
+            //失去焦点触发
+            blur: function (value) {
+                console.log(value);
+            },
+            toolbarConfig: {
+                pin: true,
+            },
+            counter: {
+                enable: true,
+                type: 'text',
+            },
+            hint: {
+                emojiPath: 'http://emojihomepage.com/',
+                emojiTail: '<a href="http://emojihomepage.com/" target="_blank">设置常用表情</a>',
+            },
+            tab: '\t',
+        });
+        $("#vditor").append(window.vditor);
+
+        //监听 ctrl + s 快捷键
+        document.onkeydown = function (e) {
+            if ('s' === e.key && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                e.preventDefault();
+                let value = window.vditor.getValue(0);
+                console.log(value)
+            }
+        }
+
     });
+
+
 </script>
 
 </body>
